@@ -5,6 +5,8 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.ListView
 import kotlinx.android.synthetic.main.activity_main.*
 import java.net.URL
@@ -30,22 +32,47 @@ class FeedEntry {
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
-    private val downloadData by lazy { DownloadData(this, xmlListView) }
+    private var downloadData: DownloadData? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        downLoadUrl("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml")
+        Log.d(TAG, "onCreate: done")
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.feeds_menu, menu)
+        return true
+    }
 
-        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml")
+    private fun downLoadUrl(feedUrl: String){
+        Log.d(TAG, "downloadUrl starting AsincTasck")
+        downloadData = DownloadData(this, xmlListView)
+        downloadData?.execute(feedUrl)
+        Log.d(TAG, "downloadUrl done")
+    }
 
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val feedUrl: String
+        when (item.itemId) {
+            R.id.mnuFree ->
+                feedUrl = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=10/xml"
+            R.id.mnuPaid ->
+                feedUrl = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/toppaidapplications/limit=10/xml"
+            R.id.mnuSongs ->
+                feedUrl = "http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topsongs/limit=10/xml"
+            else ->
+                return super.onOptionsItemSelected(item)
+        }
+        downLoadUrl(feedUrl)
+        return true
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        downloadData.cancel(true)
+        downloadData?.cancel(true)
     }
 
     companion object {
