@@ -36,10 +36,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        Log.d(TAG, "onCreate called")
 
-        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=200/xml")
-        Log.d(TAG, "onCreate: done")
+
+        downloadData.execute("http://ax.itunes.apple.com/WebObjects/MZStoreServices.woa/ws/RSS/topfreeapplications/limit=10/xml")
 
 
     }
@@ -67,14 +66,13 @@ class MainActivity : AppCompatActivity() {
                 val parseApplications = ParseApplications()
                 parseApplications.parse(result)
 
-//                val arrayAdaptor = ArrayAdapter<FeedEntry>(propContext, R.layout.list_item, parseApplications.applications)
-//                propListView.adapter = arrayAdaptor
+
                 val feedAdapter = FeedAdapter(propContext, R.layout.list_record, parseApplications.applications)
                 propListView.adapter = feedAdapter
             }
 
             override fun doInBackground(vararg params: String?): String {
-                Log.d(TAG, "doInBackGround: starts with ${params[0]}")
+
                 val rssFeed = downloadXML(params[0])
                 if (rssFeed.isEmpty()) {
                     Log.e(TAG, "doInBackground: Error downloading")
